@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>폼 태그, time / datetime</title>
+	<!--
+	time : 시간만 입력
+	datetime : 년-월-일-시간 단위로 입력
+	-->
+</head>
+<body>
+	<form action="page.jsp" method="get">
+		<h3>현재 시간 입력</h3>
+		Time : <input type="time" name="Now">
+		<h3>생일(년도, 월, 일, 시간) 입력</h3>
+		Birthday : <input type="datetime-local" name="bdaytime">
+	
+	<p></p>
+	<input type="submit" value="제출">
+	<input type="reset" value="다시작성">
+</form>
+</body>
+</html>
