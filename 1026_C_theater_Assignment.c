@@ -6,19 +6,25 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
-#define SIZE 11
+#define SIZE 20
 #define NUM 3
 
-void login_file();		// 파일 저장 로그인 시도
-void login();									// 로그인 함수 선언
+
+typedef struct login {
+	char id[10];
+	int pw;
+}LOGIN;
+
+void login(LOGIN *id, int size);				// 로그인 함수 선언
 void theater_print(int seats[][10]);			// 좌석 출력 함수 선언
 void theater_reservation(int seats[][10]);		// 좌석 예약 함수 선언
 int seats[10][10] = { 0 };						// 배열 전역 변수
 
 int main()
 {
-	login_file();
-	login();
+	LOGIN list[SIZE];
+
+	login(&list, SIZE);
 	theater_print(seats);
 	theater_reservation(seats);
 	
@@ -26,18 +32,11 @@ int main()
 }
 
 
-
-struct login {
-	char id[11];
-	int pw;
-};
-
 // 로그인 함수
-void login()
+void login(LOGIN *id, int size)
 {
-	struct login list[NUM];
-	int i, result = 0, pw1, pw2;
-	char ans, id1[SIZE] = { 0 }, id2[SIZE] = { 0 }, idd[SIZE] = "sehui";
+	int i, result = 0, pw1[SIZE];
+	char ans, id1[SIZE] = { 0 }, idd[] = "sehui";
 	// char 배열 [11]인 이유 : 한글은 2바이트 차지, 영어는 1바이트 차지
 
 	while (1) {
@@ -47,25 +46,32 @@ void login()
 
 		for (i = 0; i < 1; i++) {
 			if (ans == 'y') {
-				printf("아이디를 입력해주세요: ");
-				scanf("%s", id1);
-				printf("비밀번호를 입력해주세요: ");
-				scanf("%d", &pw1);
 
-				for (i = 0; i < SIZE; i++) {
-					if (idd[i] == id1[i] && pw1 == 1234) {
+				printf("아이디를 입력해주세요: ");
+				scanf("%s", id[i].id);
+				printf("비밀번호를 입력해주세요: ");
+				scanf("%d", id[i].pw);
+
+				for (i = 0; i < size; i++) {
+					if ((idd[i] == *id[i].id) && (id[i].pw == 1234)) {
 						printf("로그인이 완료되었습니다.\n");
 						break;
 					}
 
-					else if (idd[i] != id1[i] && pw1 != 1234) {
-						for (i = 0; i < NUM; i++) {
-							printf("틀렸습니다. 아이디와 비밀번호를 다시 입력해주세요. (3번 중 %d시도)\n", i + 1);
-							printf("\n");
+					else if ((idd[i] != *id[i].id) && (id[i].pw != 1234)) {
+						printf("틀렸습니다. 아이디와 비밀번호를 다시 입력해주세요. (3번 중 %d시도)\n", i + 1);
+						printf("\n");
+						for (i = 0; i < SIZE; i++) {
 							printf("아이디를 입력해주세요: ");
-							scanf("%s", id1);
+							scanf("%s", id[i].id);
 							printf("비밀번호를 입력해주세요: ");
-							scanf("%d", &pw1);
+							scanf("%d", id[i].pw);
+							result++;
+
+							if (result > 3) {
+								printf("로그인 횟수 초과로 비회원으로 전환됩니다.\n");
+								break;
+							}
 						}
 					}
 				}
@@ -95,43 +101,42 @@ void login()
 			else if (ans == 'n') {
 				printf("회원가입을 진행합니다. \n");
 
-				for (i = 0; i < SIZE; i++) {
+				for (i = 0; i < size; i++) {
 					printf("ID를 입력해주세요(영어 소문자, 5자까지만 가능): ");
-					scanf("%s", list[i].id);
+					scanf("%s", id1[i]);
 					printf("PW를 입력해주세요: ");
-					scanf("%d", &list[i].pw);
+					scanf("%d", pw1[i]);
 					printf("가입이 완료되었습니다. 로그인을 시도합니다. (3번 중 %d시도)\n", i + 1);
 					printf("아이디를 입력해주세요: ");
-					scanf("%s", id2);
+					scanf("%s", id1[i]);
 					printf("비밀번호를 입력해주세요 : ");
-					scanf("%d", &pw2);
+					scanf("%d", pw1[i]);
 					printf("\n");
 
-					if (list[i].id == id2[i] && list[i].pw == pw2) {
+					if (id1[i] == id1[i] && pw1[i] == pw1[i]) {
 						printf("로그인이 완료되었습니다.\n\n");
 						break;
 					}
 
-					if (list[i].id != id2[i] && list[i].pw != pw2) {
+					if (id1[i] != id1[i] && pw1[i] != pw1[i]) {
 						for (i = 0; i < NUM; i++) {
 							printf("아이디와 비밀번호가 틀렸습니다. 다시 시도해주세요.(3번 중 %d시도)\n", i + 1);
 							printf("아이디를 입력해주세요: ");
-							scanf("%s", id2);
+							scanf("%s", id1[i]);
 							printf("비밀번호를 입력해주세요 : ");
-							scanf("%d", &pw2);
+							scanf("%d", pw1[i]);
 						}
 					}
 				}
 				printf("로그인 횟수를 초과했습니다. 프로그램을 종료합니다.\n");
 				break;
 			}
-
-			else if (ans == 'e') {								// 'e'이면 프로그램 종료
-				printf("영화 예약 시스템을 종료합니다.\n");
-				printf("비회원으로 예약을 진행합니다.\n\n");
-			}
 		}
-		break;
+		if (ans == 'e') {								// 'e'이면 회원가입 종료 비회원으로 전환
+		printf("영화 예약 시스템을 종료합니다.\n");
+		printf("비회원으로 예약을 진행합니다.\n\n");
+		}
+	break;
 	}
 }
 
