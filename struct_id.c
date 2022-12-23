@@ -1,22 +1,37 @@
+// 배열 선언_극장 예약 시스템_Renewal
+// 1223: 로그인, 회원가입 프로그램 만들기 (로그인 실패 후 맞는 값 확인에서 오류)
+// 1 로그인 : ID/PW 받아서 맞으면 로그인 성공 / 틀리면 ID값 다시 받기 (3번까지)
+// 2 회원가입 : 회원이 아니면 ID/PW 새로 만들기(원하는 명 수까지) / 틀리면 ID값 다시 받기 (3번까지)
+// 3 종료 : 지정해 놓은 종료 문자를 누르면 비회원으로 전환되게 만들기
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
+#include <string.h>
 
+// 로그인을 위한 구조체
 typedef struct login {
-	char id[20];
-	int pwd;
-}LOGIN;
+	char id[10];
+	char pwd[10];
+}Login;
 
-int login(LOGIN *c, int count, char* id, int* pw);
-void theater_print(int seats[][10]);			// 좌석 출력 함수 선언
-void theater_reservation(int seats[][10]);		// 좌석 예약 함수 선언
+// 회원가입을 위한 구조체
+typedef struct member {
+	char id[10];
+	char pwd[10];
+}Member;
+
+int member(Member* m, int *size);				// 구조체 포인터를 이용한 회원가입 함수
+int login(Login *c);					// 구조체 포인터를 이용한 로그인 함수
+void theater_print(int seats[][10]);			// 좌석 출력 함수
+void theater_reservation(int seats[][10]);		// 좌석 예약 함수
 int seats[10][10] = { 0 };						// 배열 전역 변수
 
 int main()
 {
-	LOGIN y_id[4] = { "sehui", 1234, 0 };
+	Login y_log = { "sehui", "1234" };	// 지정해놓은 아이디와 비밀번호 값
+	Member m_log;	// 회원가입 구조체 변수
 
-	char ans, id[20];
-	int i = 0, pw, cnt = 3;
+	char ans;	// 회원이십니까 물음에 대한 답을 답을 문자형 변수
+	int i = 0, mem_ans;
 
 	while (1) {
 		printf("안녕하세요 영화 예약 시스템입니다.\n");
@@ -24,19 +39,18 @@ int main()
 		scanf("%c", &ans);
 
 		if (ans == 'y') {
-			printf("아이디를 입력해주세요: ");
-			scanf("%s", id);
-			printf("비밀번호를 입력해주세요: ");
-			scanf("%d", &pw);
+			i = login(&y_log);
+		}
+		else if (ans == 'n') {
+			printf("회원가입을 진행합니다.\n");
+			printf("몇 분의 회원가입이 필요하십니까?(예. 1명: 1, 2명: 2): ");
+			scanf("%d", &mem_ans);
 
-			i = login(y_id, 4, id, pw);
-			if (0 <= i)
-				printf("로그인 성공");
-
-			else if (ans == 'e') {
+			member(&m_log, &mem_ans);
+		}
+		else if (ans == 'e') {
 				printf("로그인 시스템을 종료합니다.\n");
 				printf("비회원으로 전환됩니다.\n");
-			}
 		}
 		theater_print(seats);
 		theater_reservation(seats);
@@ -45,13 +59,84 @@ int main()
 	}
 }
 
-int login(LOGIN *c, int count, char *id, int *pw)
+int login(Login* c)
 {
-	for (int i = 0; i < count; ++i) {
-		if ((strcmp(c[i].id, id) == 0) && (strcmp(c[i].pwd, pw) == 1234))
-			return i;
+	int count = 0;
+	char id[10], pwd[10];
+
+	printf("아이디를 입력해주세요: ");
+	scanf("%s", id);
+	printf("비밀번호를 입력해주세요: ");
+	scanf("%s", pwd);
+
+	for (int i = 0; i < 10; i++) {
+		if ((strcmp(c[i].id, id) == 0) && (strcmp(c[i].pwd, pwd) == 0)) {
+		printf("로그인이 완료되었습니다.\n");
+		break;
+		}
+		else if ((strcmp(c[i].id, id) != 0) || (strcmp(c[i].pwd, pwd) != 0)) {
+			printf("아이디와 비밀번호가 틀렸습니다.\n");
+			printf("아이디를 다시 입력해주세요: ");
+			scanf("%s", id);
+			printf("비밀번호를 다시 입력해주세요: ");
+			scanf("%s", pwd);
+			count++;
+			if ((strcmp(c[i].id, id) == 0) && (strcmp(c[i].pwd, pwd) == 0)) {
+				printf("로그인이 완료되었습니다.\n");
+				break;
+			}
+			else if (count > 2) {
+				printf("3번의 로그인 시도 횟수를 초과했습니다.\n");
+				printf("비회원으로 전환됩니다.\n");
+				break;
+			}
+		}		
 	}
-	return -1;
+	return 0;
+}
+
+int member(Member* m, int *size)
+{
+	int i, count = 0;
+	char id[10], pwd[10];
+
+	for (i = 0; i < *size; i++) {
+			printf("새로 등록하실 아이디를 입력해주세요: ");
+			scanf("%s", m[i].id);
+			printf("새로 등록하실 비밀번호를 입력해주세요: ");
+			scanf("%s", m[i].pwd);
+			printf("등록이 완료되었습니다.\n");
+	}
+
+	for (i = 0; i < 10; i++) {
+		printf("아이디를 입력해주세요: ");
+		scanf("%s", id);
+		printf("비밀번호를 입력해주세요: ");
+		scanf("%s", pwd);
+
+		if ((strcmp(m[i].id, id) == 0) && (strcmp(m[i].pwd, pwd) == 0)) {
+			printf("로그인이 완료되었습니다.\n");
+			break;
+		}
+		else if ((strcmp(m[i].id, id) != 0) || (strcmp(m[i].pwd, pwd) != 0)) {
+			printf("아이디와 비밀번호가 틀렸습니다.\n");
+			printf("아이디를 다시 입력해주세요: ");
+			scanf("%s", id);
+			printf("비밀번호를 다시 입력해주세요: ");
+			scanf("%s", pwd);
+			count++;
+			if ((strcmp(m[i].id, id) == 0) && (strcmp(m[i].pwd, pwd) == 0)) {
+				printf("로그인이 완료되었습니다.\n");
+				break;
+			}
+			else if (count > 2) {
+				printf("3번의 로그인 시도 횟수를 초과했습니다.\n");
+				printf("비회원으로 전환됩니다.\n");
+				break;
+			}
+		}
+	}
+	return 0;
 }
 
 // 좌석 출력 함수
