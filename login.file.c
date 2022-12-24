@@ -1,26 +1,39 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
-void login_file();
+typedef struct member {
+	char name[10];
+	char pwd[10];
+}Member;
 
 int main()
 {
-	login_file();
-}
+	// Member member = { "sehui", "1234" };
+	char id[10] = { 0 }, pwd[10] = { 0 }, c[10];
 
-void login_file()
-{
-	char pwd;
-	int id = 0;
-	FILE* fp;
+	FILE* fp = NULL;
 
-	fp = fopen("login.txt", "r");
+	fp = fopen_s(&fp, "log.txt", "w");
 
-	if (fp != NULL)
-		fgets(fp, "%s", id);
-	fscanf(fp, "%d", &pwd);
 
-	printf("id = %s\npassword = %d", id, pwd);
+	if (fp == NULL) {
+		perror("파일 열기 실패");
+	}
+
+	fclose(fp);
+
+	/*
+	for (int i = 0; i < 10; i++) {
+		fprintf(fp, "%s %s", id[i], pwd[i]);
+	}
+	*/
+	
+	/*
+	while ((c = fgetc(fp)) != EOF) {
+		printf("%c", c);
+	}
+	: r 
+	*/
 
 	fclose(fp);
 }
