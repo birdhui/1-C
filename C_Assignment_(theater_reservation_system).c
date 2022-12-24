@@ -1,8 +1,10 @@
+// 2261062 곽세희
 // 배열 선언_극장 예약 시스템_Renewal
-// 1202~1223
+// 1202~1224
 // 1 로그인 : ID/PW 받아서 맞으면 로그인 성공 / 틀리면 ID값 다시 받기 (3번까지)
 // 2 회원가입 : 회원이 아니면 ID/PW 새로 만들기(원하는 명 수까지) / 틀리면 ID값 다시 받기 (3번까지)
 // 3 종료 : 지정해 놓은 종료 문자를 누르면 비회원으로 전환되게 만들기
+// 가산점 : 파일에 쓰고 불러오기 (로그인 정보를 파일에 저장후 보여주기)
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
@@ -20,35 +22,48 @@ typedef struct member {
 }Member;
 
 int member(Member* m, int* size);				// 구조체 포인터를 이용한 회원가입 함수
-int login(Login* c);					// 구조체 포인터를 이용한 로그인 함수
+int login(Login* c);							// 구조체 포인터를 이용한 로그인 함수
 void theater_print(int seats[][10]);			// 좌석 출력 함수
 void theater_reservation(int seats[][10]);		// 좌석 예약 함수
 int seats[10][10] = { 0 };						// 배열 전역 변수
 
 int main()
 {
-	Login y_log = { "sehui", "tpgml6817" };	// 지정해놓은 아이디와 비밀번호 값
-	Member m_log;	// 회원가입 구조체 변수
+	Login y_log; // = {"sehui", "tpgml6817"};	// 지정해놓은 아이디와 비밀번호 값 : 파일입출력을 위해 값지정 X
+	Member m_log;								// 회원가입 구조체 변수
 
-	char ans;	// 회원이십니까 물음에 대한 답을 답을 문자형 변수
+	char ans;									// 회원이십니까 물음에 대한 답을 답을 문자형 변수
 	int i = 0, mem_ans;
+	
+	FILE* fp = NULL;
+
+	fp = fopen("log.txt", "r");					// 텍스트 파일의 내용을 불러오기 위해 읽기전용으로 파일 오픈
+	fscanf(fp, "%s %s", y_log.id, y_log.pwd);
+
+	if (fp == NULL) {
+		perror("파일 열기 실패");
+	}
+
+	fclose(fp);
 
 	while (1) {
 		printf("안녕하세요 영화 예약 시스템입니다.\n");
 		printf("회원이십니까? (예:y 아니오:n 비회원:e): ");
 		scanf("%c", &ans);
 
-		if (ans == 'y') {
-			i = login(&y_log);
+		if (ans == 'y') {	// 위 질문에 대한 답이 예일 경우
+			login(&y_log);
+			printf("\n%s님이 로그인하셨습니다.\n", y_log.id);
+			printf("아이디: %s 비밀번호: %s\n", y_log.id, y_log.pwd);
 		}
-		else if (ans == 'n') {
+		else if (ans == 'n') {	// 위 질문에 대한 답이 아니오일 경우
 			printf("회원가입을 진행합니다.\n");
 			printf("몇 분의 회원가입이 필요하십니까?(예. 1명: 1, 2명: 2): ");
 			scanf("%d", &mem_ans);
 
 			member(&m_log, &mem_ans);
 		}
-		else if (ans == 'e') {
+		else if (ans == 'e') {	// 위 질문에 대한 답이 비회원일 경우
 			printf("로그인 시스템을 종료합니다.\n");
 			printf("비회원으로 전환됩니다.\n");
 		}
@@ -59,19 +74,19 @@ int main()
 	return 0;
 }
 
+// 로그인 함수
 int login(Login* c)
 {
-	int count = 0;
-	char id[10] = { 0 }, pwd[10] = { 0 };
+	int count = 0;	// 로그인 시도 횟수 제한을 위한 변수
+	char id[10] = { 0 }, pwd[10] = { 0 };	// 입력한 아이디와 비밀번호 값이 원래의 값과 비교하기 위한 배열
 
 	printf("아이디를 입력해주세요: ");
-	scanf("%s", &id);
+	scanf("%s", id);
 	printf("비밀번호를 입력해주세요: ");
 	scanf("%s", pwd);
 
 	for (int i = 0; i < 10; i++) {
 		if ((strcmp(c[i].id, id) == 0) && (strcmp(c[i].pwd, pwd) == 0)) {
-			printf("로그인이 완료되었습니다.\n");
 			break;
 		}
 		else if ((strcmp(c[i].id, id) != 0) || (strcmp(c[i].pwd, pwd) != 0)) {
@@ -95,12 +110,13 @@ int login(Login* c)
 	return 0;
 }
 
+// 회원가입 함수
 int member(Member* m, int* size)
 {
 	int i, count = 0;
 	char id[10] = { 0 }, pwd[10] = { 0 };
 
-	for (i = 0; i < *size; i++) {
+	for (i = 0; i < *size; i++) {	// 입력한 인원 수만큼의 회원을 받기 위해 size만큼 반복
 		printf("새로 등록하실 아이디를 입력해주세요: ");
 		scanf("%s", m[i].id);
 		printf("새로 등록하실 비밀번호를 입력해주세요: ");
